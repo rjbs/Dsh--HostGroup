@@ -1,9 +1,8 @@
-package Dsh::Host;
-
 use strict;
 use warnings;
+package Dsh::Group::Host;
 
-use Dsh::Groups;
+use Dsh::Group::Groups;
 use Sys::Hostname;
 
 use vars qw/ %opsys $options /;
@@ -39,7 +38,7 @@ sub opsys {
   my $self = shift;
 
   my ($os_group) = grep { exists $opsys{ $_ } }
-                   Dsh::Groups->groups_for_hosts($self->host);
+                   Dsh::Group::Groups->groups_for_hosts($self->host);
 
   $os_group = $opsys{$os_group} if $os_group;
 
@@ -55,12 +54,12 @@ sub opsys {
 sub members {
   my $self = shift;
 
-  return [ Dsh::Groups->groups_for_hosts($self->host) ];
+  return [ Dsh::Group::Groups->groups_for_hosts($self->host) ];
 }
 
 sub loc {
   my ($self) = @_;
-  my ($loc) = Dsh::Groups->locations_for_hosts($self->host);
+  my ($loc) = Dsh::Group::Groups->locations_for_hosts($self->host);
   return $loc;
 }
 
@@ -68,7 +67,7 @@ sub is_member {
   my ( $self, @groups ) = @_;
 
   my $in_all = grep { $_ eq $self->host }
-               Dsh::Groups->hosts_for_intersecting_groups(\@groups);
+               Dsh::Group::Groups->hosts_for_intersecting_groups(\@groups);
 
   return $in_all ? 1 : 0;
 }
