@@ -34,12 +34,6 @@ sub opsys {
 
   $os_group = $opsys{$os_group} if $os_group;
 
-  if (!$os_group and $self->hostname eq hostname) {
-    my $uname = `/bin/uname -s`;
-    chomp $uname;
-    $os_group = $uname;
-  }
-
   return $os_group;
 }
 
