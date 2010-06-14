@@ -2,29 +2,41 @@
 use strict;
 use warnings;
 
-BEGIN { $ENV{DSH_HOSTGROUPS_ROOT} = 't/hostgroups'; }
-
-use Test::More tests => 5;
+use Test::More 0.88;
 use Dsh::Group::Groups;
 use Dsh::Group::Host;
 
-my $hg = 'Dsh::Group::Groups';
+my $hg;
+my $tests = sub { 
+  is_deeply(
+    [ $hg->groups_for_hosts('quux') ],
+    [ qw(loc-moon quake solaris) ],
+    "quux groups",
+  );
 
-is_deeply(
-  [ $hg->groups_for_hosts('quux') ],
-  [ qw(loc-moon quake solaris) ],
-  "quux groups",
-);
+  is_deeply(
+    [ $hg->intersecting_groups_for_hosts([ qw(bar quux) ]) ],
+    [ qw(quake) ],
+    "group intersections",
+  );
 
-is_deeply(
-  [ $hg->intersecting_groups_for_hosts([ qw(bar quux) ]) ],
-  [ qw(quake) ],
-  "group intersections",
-);
+  my $quux_groups = $hg->host('quux');
+  is($quux_groups->opsys, 'SunOS', 'quux os is correct');
+  is($quux_groups->loc,   'moon',  'quux is on the moon');
 
-my $quux_groups = Dsh::Group::Host->new({ host => 'quux' });
-is($quux_groups->opsys, 'SunOS', 'quux os is correct');
-is($quux_groups->loc,   'moon',  'quux is on the moon');
+  my $whingo_groups = $hg->host('whingo');
+  is($whingo_groups->loc, 'moon',  'found whingo on the moon, via zonehost');
+};
 
-my $whingo_groups = Dsh::Group::Host->new({ host => 'whingo' });
-is($whingo_groups->loc, 'moon',  'found whingo on the moon, via its zonehost');
+{
+  local $ENV{DSH_HOSTGROUPS_ROOT} = 't/hostgroups';
+  $hg = 'Dsh::Group::Groups';
+  $tests -> ();
+}
+
+{
+  $hg = Dsh::Group::Groups->for_root('t/hostgroups');
+  $tests -> ();
+}
+
+done_testing;

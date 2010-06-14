@@ -2,7 +2,6 @@ use strict;
 use warnings;
 package Dsh::Group::Host;
 
-use Dsh::Group::Groups;
 use Sys::Hostname;
 
 use vars qw/ %opsys $options /;
@@ -12,37 +11,30 @@ $opsys{ debian  } = 'Linux';
 $opsys{ solaris } = 'SunOS';
 $opsys{ openbsd } = 'OpenBSD';
 
-sub new {
-  my ( $class, $arg_ref ) = @_;
+sub _new {
+  my ($class, $hostname, $groups) = @_;
 
-  $options = {
-    host    => $arg_ref->{ host } ||= hostname,
+  my $guts = {
+    hostname => $hostname,
+    groups   => $groups,
   };
 
-  my $new_object = bless $options, $class;
-
-  return $new_object;
+  return bless $guts => $class;
 }
 
-sub host {
-  my ( $self, $new_host ) = @_;
+sub hostname { $_[0]{hostname} }
 
-  if ( $new_host ) {
-    $self->{ host } = $new_host;
-  }
-
-  return $self->{ host };
-}
+sub _groups { $_[0]{groups} }
 
 sub opsys {
-  my $self = shift;
+  my ($self) = @_;
 
   my ($os_group) = grep { exists $opsys{ $_ } }
-                   Dsh::Group::Groups->groups_for_hosts($self->host);
+                   $self->_groups->groups_for_hosts($self->hostname);
 
   $os_group = $opsys{$os_group} if $os_group;
 
-  if (!$os_group and $self->host eq hostname) {
+  if (!$os_group and $self->hostname eq hostname) {
     my $uname = `/bin/uname -s`;
     chomp $uname;
     $os_group = $uname;
@@ -52,22 +44,22 @@ sub opsys {
 }
 
 sub members {
-  my $self = shift;
+  my ($self) = @_;
 
-  return [ Dsh::Group::Groups->groups_for_hosts($self->host) ];
+  return [ $self->_groups->groups_for_hosts($self->hostname) ];
 }
 
 sub loc {
   my ($self) = @_;
-  my ($loc) = Dsh::Group::Groups->locations_for_hosts($self->host);
+  my ($loc) = $self->_groups->locations_for_hosts($self->hostname);
   return $loc;
 }
 
 sub is_member {
-  my ( $self, @groups ) = @_;
+  my ($self, @group_names) = @_;
 
-  my $in_all = grep { $_ eq $self->host }
-               Dsh::Group::Groups->hosts_for_intersecting_groups(\@groups);
+  my $in_all = grep { $_ eq $self->hostname }
+               $self->_groups->hosts_for_intersecting_groups(\@group_names);
 
   return $in_all ? 1 : 0;
 }
