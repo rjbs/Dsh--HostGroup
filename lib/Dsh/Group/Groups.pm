@@ -35,10 +35,11 @@ that's not defined F</etc/dsh/group> is used.  Groups objects are cached.
 =cut
 
 sub default_host_class { 'Dsh::Group::Host' }
+sub default_group_root { '/etc/dsh/group/'  };
 
 sub for_root {
   my ($class, $root, $arg) = @_;
-  $root ||= $ENV{DSH_HOSTGROUPS_ROOT} || '/etc/dsh/group/';
+  $root ||= $ENV{DSH_HOSTGROUPS_ROOT} || $class->default_group_root;
   $arg  ||= {};
 
   my $effective_arg = {
