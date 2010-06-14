@@ -1,10 +1,10 @@
 use strict;
 use warnings;
-package Dsh::HostGroups;
+package Dsh::Groups;
 
 =head1 NAME
 
-Dsh::HostGroups - look up machines and groups
+Dsh::Groups - look up machines and groups
 
 =head1 VERSION
 
@@ -46,9 +46,9 @@ sub _group_hosts {
 
 =head2 groups_for_hosts
 
-  my @groups = Dsh::HostGroups->groups_for_hosts($host);
+  my @groups = Dsh::Groups->groups_for_hosts($host);
 
-  my @groups = Dsh::HostGroups->groups_for_hosts(\@hosts);
+  my @groups = Dsh::Groups->groups_for_hosts(\@hosts);
 
 This method returns all the groups to which at least one of the given hosts
 belongs.
@@ -76,9 +76,9 @@ sub groups_for_hosts {
 
 =head2 intersecting_groups_for_hosts
 
-  my @groups = Dsh::HostGroups->intersecting_groups_for_hosts($host);
+  my @groups = Dsh::Groups->intersecting_groups_for_hosts($host);
 
-  my @groups = Dsh::HostGroups->intersecting_groups_for_hosts(\@hosts);
+  my @groups = Dsh::Groups->intersecting_groups_for_hosts(\@hosts);
 
 This method returns all the groups to which all one of the given hosts belong.
 
@@ -104,9 +104,9 @@ sub intersecting_groups_for_hosts {
 
 =head2 hosts_for_groups
 
-  my @hosts = Dsh::HostGroups->hosts_for_groups($group);
+  my @hosts = Dsh::Groups->hosts_for_groups($group);
 
-  my @hosts = Dsh::HostGroups->hosts_for_groups(\@groups);
+  my @hosts = Dsh::Groups->hosts_for_groups(\@groups);
 
 This method returns all the hosts found in the union of all the given groups.
 
@@ -132,7 +132,7 @@ sub hosts_for_groups {
 
 =head2 hosts_for_intersecting_groups
 
-  my @hosts = Dsh::HostGroups->hosts_for_intersecting_groups(\@groups);
+  my @hosts = Dsh::Groups->hosts_for_intersecting_groups(\@groups);
 
 This method returns all the hosts found in the union of all the given groups.
 
@@ -158,7 +158,7 @@ sub hosts_for_intersecting_groups {
 
 =head2 locations_for_hosts
 
-  my @locations = Dsh::HostGroups->locations_for_hosts(\@hosts, \%arg);
+  my @locations = Dsh::Groups->locations_for_hosts(\@hosts, \%arg);
 
 Valid arguments are:
 
@@ -192,7 +192,7 @@ sub locations_for_hosts {
 
 =head2 all_groups
 
-  my @groups = Dsh::HostGroups->all_groups;
+  my @groups = Dsh::Groups->all_groups;
 
 This returns a list of all the known groups.
 

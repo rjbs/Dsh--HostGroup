@@ -2,13 +2,13 @@
 use strict;
 use warnings;
 
-BEGIN { $ENV{ICG_HOSTGROUPS_ROOT} = 't/hostgroups'; }
+BEGIN { $ENV{DSH_HOSTGROUPS_ROOT} = 't/hostgroups'; }
 
 use Test::More tests => 5;
-use ICG::HostGroups;
-use ICG::Systems::Groups;
+use Dsh::HostGroups;
+use Dsh::Systems::Groups;
 
-my $hg = 'ICG::HostGroups';
+my $hg = 'Dsh::HostGroups';
 
 is_deeply(
   [ $hg->groups_for_hosts('quux') ],
@@ -22,9 +22,9 @@ is_deeply(
   "group intersections",
 );
 
-my $quux_groups = ICG::Systems::Groups->new({ host => 'quux' });
+my $quux_groups = Dsh::Systems::Groups->new({ host => 'quux' });
 is($quux_groups->opsys, 'SunOS', 'quux os is correct');
 is($quux_groups->loc,   'moon',  'quux is on the moon');
 
-my $whingo_groups = ICG::Systems::Groups->new({ host => 'whingo' });
+my $whingo_groups = Dsh::Systems::Groups->new({ host => 'whingo' });
 is($whingo_groups->loc, 'moon',  'found whingo on the moon, via its zonehost');
