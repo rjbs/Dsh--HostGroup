@@ -1,3 +1,3 @@
 #!/icg/bin/perl
 use Dsh::Group::App;
-Dsh::Group::App->app;
+Dsh::Group::App->run;

@@ -33,8 +33,8 @@ sub opt_spec {
       [ "list|l",         "list all groups" ],
     ],
     { default => 'union' },
-  ],
-);
+  ]
+}
 
 sub execute {
   my ($self, $opt, $args) = @_;
@@ -48,8 +48,8 @@ sub execute {
   my @answers;
 
   if ($opt->{mode} eq 'list') {
-    say($_) for sort Dsh::Group::Groups->all_groups;
-    exit;
+    print("$_\n") for sort Dsh::Group::Groups->all_groups;
+    return;
   }
 
   if ($opt->{mode} eq 'union') {
@@ -75,7 +75,7 @@ sub execute {
     }
   }
 
-  say $_ for grep { ! $exclude{ $_ } } @answers;
+  print "$_\n" for grep { ! $exclude{ $_ } } @answers;
 }
 
 1;
