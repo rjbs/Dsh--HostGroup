@@ -22,20 +22,26 @@ my $tests = sub {
 
   my $quux_groups = $hg->host('quux');
   is($quux_groups->opsys, 'SunOS', 'quux os is correct');
-  is($quux_groups->loc,   'moon',  'quux is on the moon');
+  is($quux_groups->location,   'moon',  'quux is on the moon');
 
   my $whingo_groups = $hg->host('whingo');
-  is($whingo_groups->loc, 'moon',  'found whingo on the moon, via zonehost');
+  is($whingo_groups->location, 'moon',  'found whingo on the moon, via zonehost');
 };
 
 {
+  package DGGI;
+  use base 'Dsh::Group::Groups';
+  sub default_host_class { 'Dsh::Group::Host::ICG' }
+}
+
+{
   local $ENV{DSH_HOSTGROUPS_ROOT} = 't/hostgroups';
-  $hg = 'Dsh::Group::Groups';
+  $hg = 'DGGI';
   $tests -> ();
 }
 
 {
-  $hg = Dsh::Group::Groups->for_root('t/hostgroups');
+  $hg = DGGI->for_root('t/hostgroups');
   $tests -> ();
 }
 

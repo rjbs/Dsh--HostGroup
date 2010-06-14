@@ -14,8 +14,10 @@ version 1.000
 
 our $VERSION = '1.000';
 
+use Carp ();
 use Clone;
 use List::MoreUtils;
+use Params::Util qw(_CLASS);
 
 =head1 METHODS
 
@@ -32,15 +34,36 @@ that's not defined F</etc/dsh/group> is used.  Groups objects are cached.
 
 =cut
 
+sub default_host_class { 'Dsh::Group::Host' }
+
 sub for_root {
-  my ($class, $root) = @_;
+  my ($class, $root, $arg) = @_;
   $root ||= $ENV{DSH_HOSTGROUPS_ROOT} || '/etc/dsh/group/';
-  return $FOR_ROOT{ $root } ||= $class->_new($root);
+  $arg  ||= {};
+
+  my $effective_arg = {
+    host_class => $arg->{host_class} || $class->default_host_class,
+  };
+
+  my $arg_str = join \0,
+                map { $_, $effective_arg->{$_} }
+                sort keys %$effective_arg;
+
+  return $FOR_ROOT{ "$root$arg_str" } ||= $class->_new($root, $effective_arg);
 }
 
 sub _new {
-  my ($class, $root) = @_;
-  return bless { root => $root } => $class;
+  my ($class, $root, $arg) = @_;
+
+  Carp::croak("illegal host_class: $arg->{host_class}")
+    unless _CLASS($arg->{host_class});
+
+  eval "require $arg->{host_class}; 1" or die $@;
+
+  return bless {
+    root       => $root,
+    host_class => $arg->{host_class},
+  } => $class;
 }
 
 sub _self {
@@ -193,41 +216,6 @@ sub hosts_for_intersecting_groups {
   return grep { $host{$_} == @$groups } sort keys %host;
 }
 
-=head2 locations_for_hosts
-
-  my @locations = $groups->locations_for_hosts(\@hosts, \%arg);
-
-Valid arguments are:
-
-  trust_zone - choose zone's loc over machine's explicit loc; default: false
-
-=cut
-
-sub locations_for_hosts {
-  my ($invocant, $hosts, $arg) = @_;
-  my $self = $invocant->_self;
-  $arg ||= {};
-
-  my @groups = $self->groups_for_hosts($hosts);
-  my @zones  = map { s/^zones-//; $_ } grep { /^zones-/ } @groups;
-
-  if (@zones and $arg->{trust_zone}) {
-    return $self->locations_for_hosts(\@zones, $arg);
-  }
-
-  my @locs;
-
-  if (@locs = grep { /^loc-/ } @groups) {
-    s/^loc-// for @locs;
-  }
-
-  if (@zones) {
-    push @locs, $self->locations_for_hosts(\@zones);
-  }
-
-  return List::MoreUtils::uniq(@locs);
-}
-
 =head2 all_groups
 
   my @groups = $groups->all_groups;
@@ -252,7 +240,7 @@ sub host {
   my ($invocant, $hostname) = @_;
   my $self = $invocant->_self;
 
-  Dsh::Group::Host->_new($hostname, $self);
+  $self->{host_class}->_new($hostname, $self);
 }
 
 1;
