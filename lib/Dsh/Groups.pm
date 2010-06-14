@@ -21,7 +21,7 @@ use List::MoreUtils;
 
 =cut
 
-my $ROOT = $ENV{Dsh_HOSTGROUPS_ROOT} || '/etc/dsh/group/';
+my $ROOT = $ENV{DSH_HOSTGROUPS_ROOT} || '/etc/dsh/group/';
 
 my %group_hosts;
 sub _group_hosts {
