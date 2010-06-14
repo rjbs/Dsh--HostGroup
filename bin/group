@@ -1,0 +1,74 @@
+#!/icg/bin/perl
+
+use strict;
+use warnings;
+
+=head1 NAME
+
+group - look up machines and groups
+
+=head1 VERSION
+
+version 2.00
+
+=cut
+
+our $VERSION = '2.00';
+
+use File::Basename;
+use ICG::CLI;
+use ICG::HostGroups;
+use List::MoreUtils qw(uniq);
+
+my ($opt, $usage) = describe_options(
+  "%c %o <groupname ...>",
+  [ "exclude|V=s@",   "exclude the given host/group(s) from output"        ],
+  [ "reverse|r",      "find groups for a machine, not machines in a group" ],
+  [
+    "mode" => [
+      [ "intersection|i", "given many groups, find hosts in all of them" ],
+      [ "union|u",        "given many groups, find hosts represented" ],
+      [ "list|l",         "list all groups" ],
+    ],
+    { default => 'union' },
+  ],
+);
+
+if ($opt->{mode} eq 'list') {
+  X->toss($usage->text) if @ARGV;
+} else {
+  X->toss($usage->text) unless @ARGV;
+}
+
+my $input = [ @ARGV ];
+my @answers;
+
+if ($opt->{mode} eq 'list') {
+  say($_) for sort ICG::HostGroups->all_groups;
+  exit;
+}
+
+if ($opt->{mode} eq 'union') {
+  @answers = $opt->{reverse}
+           ? ICG::HostGroups->groups_for_hosts([ @ARGV ])
+           : ICG::HostGroups->hosts_for_groups([ @ARGV ]);
+} elsif ($opt->{mode} eq 'intersection') {
+  @answers = $opt->{reverse}
+           ? ICG::HostGroups->intersecting_groups_for_hosts([ @ARGV ])
+           : ICG::HostGroups->hosts_for_intersecting_groups([ @ARGV ]);
+}
+
+my %exclude;
+if ($opt->{reverse}) {
+  %exclude = map {; $_ => 1 } @{ $opt->{exclude} };
+} else {
+  for my $v (@{ $opt->{exclude} }) {
+    if (my @hosts = ICG::HostGroups->hosts_for_groups([ $v ])) {
+      @exclude{@hosts} = (1) x @hosts;
+    } else {
+      $exclude{$v} = 1;
+    }
+  }
+}
+
+say $_ for grep { ! $exclude{ $_ } } @answers;
