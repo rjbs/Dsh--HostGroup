@@ -20,12 +20,16 @@ my $tests = sub {
     "group intersections",
   );
 
-  my $quux_groups = $hg->host('quux');
-  is($quux_groups->opsys, 'SunOS', 'quux os is correct');
-  is($quux_groups->location,   'moon',  'quux is on the moon');
+  my $quux = $hg->host('quux');
+  is($quux->hostname, 'quux', 'quux is eponymous');
+  is($quux->physical_host->hostname, 'quux', 'quux is its own physical host');
+  is($quux->opsys, 'SunOS', 'quux os is correct');
+  is($quux->location,   'moon',  'quux is on the moon');
 
-  my $whingo_groups = $hg->host('whingo');
-  is($whingo_groups->location, 'moon',  'found whingo on the moon, via zonehost');
+  my $whingo = $hg->host('whingo');
+  is($whingo->hostname, 'whingo', 'whingo is eponymous');
+  is($whingo->physical_host->hostname, 'quux', 'whingo is hosted on quux quux');
+  is($whingo->location, 'moon',  'found whingo on the moon, via zonehost');
 };
 
 {
