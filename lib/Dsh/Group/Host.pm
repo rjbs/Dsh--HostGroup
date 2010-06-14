@@ -37,7 +37,7 @@ sub opsys {
   return $os_group;
 }
 
-sub members {
+sub groups {
   my ($self) = @_;
 
   return [ $self->_groups->groups_for_hosts($self->hostname) ];
