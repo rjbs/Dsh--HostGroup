@@ -30,7 +30,7 @@ my %FOR_ROOT;
 
   my $groups = Dsh::Group::Groups->for_root( $dsh_groups_root );
 
-If no root is supplied, the env var C<DSH_HOSTGROUPS_ROOT> is consulted.  If
+If no root is supplied, the env var C<DSH_GROUP_ROOT> is consulted.  If
 that's not defined F</etc/dsh/group> is used.  Groups objects are cached.
 
 =cut
@@ -40,7 +40,7 @@ sub default_group_root { '/etc/dsh/group/'  };
 
 sub for_root {
   my ($class, $root, $arg) = @_;
-  $root ||= $ENV{DSH_HOSTGROUPS_ROOT} || $class->default_group_root;
+  $root ||= $ENV{DSH_GROUP_ROOT} || $class->default_group_root;
   $arg  ||= {};
 
   my $effective_arg = {
@@ -93,6 +93,7 @@ sub _group_hosts {
     }
 
     (my $group = $file) =~ s{^\Q$root\E/}{}g;
+    next if $group =~ m{(?:^|/)\.};
 
     open my $fh, '<', $file or die "couldn't open group file for $group: $!";
     my @lines = grep { $_ !~ /^#/ } <$fh>;

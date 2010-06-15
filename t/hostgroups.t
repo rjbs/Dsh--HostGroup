@@ -39,7 +39,7 @@ my $tests = sub {
 }
 
 {
-  local $ENV{DSH_HOSTGROUPS_ROOT} = 't/hostgroups';
+  local $ENV{DSH_GROUP_ROOT} = 't/hostgroups';
   $hg = 'DGGI';
   $tests -> ();
 }

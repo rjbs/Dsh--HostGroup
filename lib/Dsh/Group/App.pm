@@ -19,9 +19,7 @@ use File::Basename;
 use Dsh::Group::Groups;
 use List::MoreUtils qw(uniq);
 
-sub usage_desc {
-  "%c %o <groupname ...>",
-}
+sub usage_desc { "%c <groupname ...>" }
 
 sub opt_spec {
   [ "exclude|V=s@",   "exclude the given host/group(s) from output"        ],
