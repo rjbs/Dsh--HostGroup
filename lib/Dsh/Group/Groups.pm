@@ -86,14 +86,18 @@ sub _group_hosts {
 
   my @group_files = File::Find::Rule->file->in($root);
 
+  warn "going to look for files in $root\n";
   GROUPFILE: for my $file (@group_files) {
+    warn "considering $file\n";
     if (-l $file) {
       my $target = readlink $file;
       next GROUPFILE unless -e $target;
     }
 
     (my $group = $file) =~ s{^\Q$root\E/}{}g;
+    warn "truncated name to $group\n";
     next if $group =~ m{(?:^|/)\.};
+    warn "proceding; was not a dotfile\n";
 
     open my $fh, '<', $file or die "couldn't open group file for $group: $!";
     my @lines = grep { $_ !~ /^#/ } <$fh>;
