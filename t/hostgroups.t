@@ -10,7 +10,7 @@ my $hg;
 my $tests = sub { 
   is_deeply(
     [ $hg->groups_for_hosts('quux') ],
-    [ qw(loc-moon quake solaris) ],
+    [ qw(loc/moon quake solaris) ],
     "quux groups",
   );
 

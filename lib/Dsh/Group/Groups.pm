@@ -16,6 +16,7 @@ our $VERSION = '1.000';
 
 use Carp ();
 use Clone;
+use File::Find::Rule;
 use List::MoreUtils;
 use Params::Util qw(_CLASS);
 
@@ -83,14 +84,16 @@ sub _group_hosts {
   my $root  = $self->_root;
   my $hosts = $self->{_group_hosts} = {};
 
-  my @group_files = glob("$root/*");
+  my @group_files = File::Find::Rule->file->in($root);
 
   GROUPFILE: for my $file (@group_files) {
     if (-l $file) {
       my $target = readlink $file;
       next GROUPFILE unless -e $target;
     }
-    my ($group) = $file =~ m{([^/]+)\z};
+
+    (my $group = $file) =~ s{^\Q$root\E/}{}g;
+
     open my $fh, '<', $file or die "couldn't open group file for $group: $!";
     my @lines = grep { $_ !~ /^#/ } <$fh>;
     chomp @lines;

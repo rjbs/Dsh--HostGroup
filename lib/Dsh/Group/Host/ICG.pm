@@ -41,13 +41,13 @@ sub is_member {
 sub physical_host {
   my ($self) = @_;
 
-  my @zones = grep { /^zones-/ } @{ $self->groups };
+  my @zones = grep { m{^zones[/-]} } @{ $self->groups };
   return $self unless @zones;
 
   Carp::carp(sprintf "host %s is in multiple zone groups", $self->hostname)
     if @zones > 1;
 
-  my ($name) = $zones[0] =~ /^zones-(.+)$/;
+  my ($name) = $zones[0] =~ m{^zones[/-](.+)$};
   $self->_groups->host($name);
 }
 
@@ -55,14 +55,14 @@ sub location {
   my ($self) = @_;
   my $host = $self->physical_host;
 
-  my @locs = grep { /^loc-/ } @{ $host->groups };
+  my @locs = grep { m{^loc[/-]} } @{ $host->groups };
 
   return unless @locs;
 
   Carp::carp(sprintf "host %s is in multiple loc groups", $self->hostname)
     if @locs > 1;
 
-  my ($loc) = $locs[0] =~ /^loc-(.+)$/;
+  my ($loc) = $locs[0] =~ m{^loc[/-](.+)$};
 
   return $loc;
 }
