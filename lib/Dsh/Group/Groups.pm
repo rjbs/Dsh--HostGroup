@@ -94,7 +94,7 @@ sub _group_hosts {
       next GROUPFILE unless -e $target;
     }
 
-    (my $group = $file) =~ s{^\Q$root\E/}{}g;
+    (my $group = $file) =~ s{^\Q$root\E/?}{}g;
     warn "truncated name to $group\n";
     next if $group =~ m{(?:^|/)\.};
     warn "proceding; was not a dotfile\n";
