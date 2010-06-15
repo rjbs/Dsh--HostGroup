@@ -40,9 +40,9 @@ sub execute {
   my ($self, $opt, $args) = @_;
 
   if ($opt->{mode} eq 'list') {
-    $self->usage_error if @$args;
+    $self->usage_error("--list does not take any arguments") if @$args;
   } else {
-    $self->usage_error unless @$args;
+    $self->usage_error("you need to pass some host/group names") if ! @$args;
   }
 
   my @answers;
